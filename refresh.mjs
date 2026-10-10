@@ -33,7 +33,7 @@ async function main(){
     try{
       const {stdout}=await exec('curl',['--silent','--show-error','--fail','--location','--retry','2','--retry-delay','2','--max-time','25','--user-agent','LionPlate menu updater',source.url],{maxBuffer:5000000,timeout:90000});
       return stdout;
-    }catch{throw new Error('Official page download failed');}
+        }catch(error){throw new Error(`Official page download failed: ${error.stderr || error.message}`);}
   });
   await mkdir(fileURLToPath(new URL('./data/',import.meta.url)),{recursive:true});
   await writeFile(destination+'.tmp',JSON.stringify(feed)+'\n');
