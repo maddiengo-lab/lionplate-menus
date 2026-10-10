@@ -31,7 +31,7 @@ async function main(){
   let previous;try{previous=JSON.parse(await readFile(destination,'utf8'));}catch{}
   const feed=await refreshSources(previous,async source=>{
     try{
-      const {stdout}=await exec('curl',['--silent','--show-error','--fail','--location','--retry','2','--retry-delay','2','--max-time','25','--user-agent','LionPlate menu updater',source.url],{maxBuffer:5000000,timeout:90000});
+      const {stdout}=await exec('curl',['--silent','--show-error','--fail','--location','--retry','2','--retry-delay','2','--max-time','25','--user-agent','Mozilla/5.0',source.url],{maxBuffer:5000000,timeout:90000});
       return stdout;
         }catch(error){throw new Error(`Official page download failed: ${error.stderr || error.message}`);}
   });
