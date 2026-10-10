@@ -1,0 +1,43 @@
+name: Refresh official Columbia menus
+on:
+  schedule:
+    - cron: '17 * * * *'
+  workflow_dispatch:
+  push:
+    paths:
+      - refresh.mjs
+      - menu-source.ts
+      - .github/workflows/refresh-menus.yml
+permissions:
+  contents: write
+concurrency:
+  group: official-menu-refresh
+  cancel-in-progress: false
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Download official menus
+        id: scrape
+        continue-on-error: true
+        run: node refresh.mjs
+      - name: Save updated menus
+        if: ${{ !cancelled() }}
+        run: |
+          git config user.name 'LionPlate menu updater'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add data/menus.json
+          if ! git diff --cached --quiet; then
+            git commit -m 'Refresh official dining menus'
+            git push
+          fi
+      - name: Report failed sources
+        if: ${{ steps.scrape.outcome == 'failure' }}
+        run: |
+          echo 'Failed sources retained previous menus and will retry next run.'
+          exit 1
